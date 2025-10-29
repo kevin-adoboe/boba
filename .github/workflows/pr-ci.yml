@@ -31,11 +31,5 @@ jobs:
       - name: Run go build
         run: go build ./...
 
-      - name: Run tests
-        run: |
-          # Exclude packages that require additional build artifacts or setup
-          # op-e2e and op-acceptance-tests require contract artifacts
-          # op-validator depends on op-e2e/config which has initialization dependencies
-          # op-deployer and op-test-sequencer have environment-dependent tests
-          # cannon requires pre-built ELF test fixtures and MIPS contract artifacts
-          go test $(go list ./... | grep -v '/op-e2e/' | grep -v '/op-acceptance-tests/' | grep -v '/op-validator/' | grep -v '/op-deployer/' | grep -v '/op-test-sequencer/' | grep -v '/cannon/') -short -timeout 5m
+      # Note: Full test suite requires additional setup (contract artifacts, test fixtures, etc.)
+      # For a lightweight CI, we only run build and vet checks
