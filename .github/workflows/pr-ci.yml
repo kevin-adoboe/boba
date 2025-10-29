@@ -13,17 +13,55 @@ jobs:
   go-lint-and-test:
     name: Go Lint and Test
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.22'
 
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
       - name: Install dependencies
-        run: go mod download
+        run: |
+          # Install Just build tool
+          curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+
+          # Download Go dependencies
+          go mod download
+
+      - name: Install Solidity compilers
+        run: |
+          # Install multiple Solidity compiler versions needed by the project
+          svm install 0.8.15
+          svm install 0.8.19
+          svm install 0.8.25
+          svm install 0.8.28
+
+      - name: Initialize submodules
+        run: |
+          git submodule update --init --recursive --force -j 8
+        working-directory: packages/contracts-bedrock
+
+      - name: Build contracts
+        run: |
+          forge build --skip "/**/test/**" --skip "/**/scripts/**"
+        working-directory: packages/contracts-bedrock
+        env:
+          FOUNDRY_PROFILE: ci
+
+      - name: Build cannon test fixtures
+        run: |
+          make elf
+        working-directory: cannon/testdata/example
 
       - name: Run go vet
         run: go vet ./...
@@ -31,5 +69,7 @@ jobs:
       - name: Run go build
         run: go build ./...
 
-      # Note: Full test suite requires additional setup (contract artifacts, test fixtures, etc.)
-      # For a lightweight CI, we only run build and vet checks
+      - name: Run tests
+        run: go test ./... -short -timeout 10m
+        env:
+          SKIP_SLOW_TESTS: true
