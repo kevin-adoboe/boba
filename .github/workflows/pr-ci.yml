@@ -45,10 +45,9 @@ jobs:
 
       - name: Build contracts
         run: |
-          forge build --skip "/**/test/**" --skip "/**/scripts/**"
+          # Use just build-source to build only source contracts (skips tests/scripts and linting)
+          just build-source
         working-directory: packages/contracts-bedrock
-        env:
-          FOUNDRY_PROFILE: ci
 
       - name: Build cannon test fixtures
         run: |
