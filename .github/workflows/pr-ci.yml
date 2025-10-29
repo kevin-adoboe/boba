@@ -36,4 +36,5 @@ jobs:
           # Exclude packages that require additional build artifacts or setup
           # op-e2e and op-acceptance-tests require contract artifacts
           # op-validator depends on op-e2e/config which has initialization dependencies
-          go test $(go list ./... | grep -v '/op-e2e/' | grep -v '/op-acceptance-tests/' | grep -v '/op-validator/') -short -timeout 5m
+          # op-deployer and op-test-sequencer have environment-dependent tests
+          go test $(go list ./... | grep -v '/op-e2e/' | grep -v '/op-acceptance-tests/' | grep -v '/op-validator/' | grep -v '/op-deployer/' | grep -v '/op-test-sequencer/') -short -timeout 5m
