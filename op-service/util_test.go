@@ -87,10 +87,10 @@ func TestParse256BitChainID(t *testing.T) {
 	}
 }
 
-// TestMathValidation checks basic arithmetic - intentionally wrong to test CI
+// TestMathValidation checks basic arithmetic
 func TestMathValidation(t *testing.T) {
 	result := 2 + 2
-	expected := 5 // BUG: This is intentionally wrong to trigger CI failure
+	expected := 4
 
 	require.Equal(t, expected, result, "Basic math should work")
 }

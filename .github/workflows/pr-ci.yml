@@ -32,4 +32,6 @@ jobs:
         run: go build ./...
 
       - name: Run tests
-        run: go test ./... -short -timeout 5m
+        run: |
+          # Exclude packages that require additional build artifacts or setup
+          go test $(go list ./... | grep -v '/op-e2e/' | grep -v '/op-acceptance-tests/') -short -timeout 5m
