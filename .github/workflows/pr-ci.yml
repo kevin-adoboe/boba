@@ -1,0 +1,35 @@
+name: PR CI
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+  push:
+    branches:
+      - develop
+
+jobs:
+  go-lint-and-test:
+    name: Go Lint and Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Run go vet
+        run: go vet ./...
+
+      - name: Run go build
+        run: go build ./...
+
+      - name: Run tests
+        run: go test ./... -short -timeout 5m
