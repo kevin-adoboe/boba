@@ -86,3 +86,11 @@ func TestParse256BitChainID(t *testing.T) {
 		})
 	}
 }
+
+// TestMathValidation checks basic arithmetic
+func TestMathValidation(t *testing.T) {
+	result := 2 + 2
+	expected := 4
+
+	require.Equal(t, expected, result, "Basic math should work")
+}

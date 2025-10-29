@@ -1,0 +1,66 @@
+name: PR CI
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+  push:
+    branches:
+      - develop
+
+jobs:
+  go-lint-and-test:
+    name: Go Lint and Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Install dependencies
+        run: |
+          # Install Just build tool
+          curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+
+          # Download Go dependencies
+          go mod download
+
+      - name: Initialize submodules
+        run: |
+          git submodule update --init --recursive --force -j 8
+        working-directory: packages/contracts-bedrock
+
+      - name: Build contracts
+        run: |
+          # Use just build-source to build only source contracts (skips tests/scripts and linting)
+          just build-source
+        working-directory: packages/contracts-bedrock
+
+      - name: Build cannon test fixtures
+        run: |
+          make elf
+        working-directory: cannon/testdata/example
+
+      - name: Run go vet
+        run: go vet ./...
+
+      - name: Run go build
+        run: go build ./...
+
+      - name: Run tests
+        run: go test ./... -short -timeout 10m
+        env:
+          SKIP_SLOW_TESTS: true
