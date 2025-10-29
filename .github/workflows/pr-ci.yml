@@ -34,4 +34,6 @@ jobs:
       - name: Run tests
         run: |
           # Exclude packages that require additional build artifacts or setup
-          go test $(go list ./... | grep -v '/op-e2e/' | grep -v '/op-acceptance-tests/') -short -timeout 5m
+          # op-e2e and op-acceptance-tests require contract artifacts
+          # op-validator depends on op-e2e/config which has initialization dependencies
+          go test $(go list ./... | grep -v '/op-e2e/' | grep -v '/op-acceptance-tests/' | grep -v '/op-validator/') -short -timeout 5m
